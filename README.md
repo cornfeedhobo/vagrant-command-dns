@@ -103,7 +103,7 @@ This plugin was made possible by [Shiftgig](https://www.shiftgig.com)
 
 
 # Contributing
-Pull requests are welcome on GitHub at https://github.com/[USERNAME]/vagrant-command-dns.
+Pull requests are welcome on GitHub at https://github.com/cornfeedhobo/vagrant-command-dns.
 
 This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](contributor-covenant.org) code of conduct.
 
