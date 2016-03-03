@@ -1,0 +1,43 @@
+en:
+  vagrant_command_dns:
+
+    config:
+      route53_zone_id_required: |-
+        A zone ID must be specified via "route53_zone_id"
+      route53_access_key_id_required: |-
+        An access key ID must be specified via "route53_access_key_id"
+      route53_secret_access_key_required: |-
+        A secret access key is required via "route53_secret_access_key"
+
+    errors:
+      machine_state_error: |-
+        Machine must be %{state} to preform this action.
+      unsupported_provider_error: |-
+        Machine provider not supported. Pull requests and testers are welcome.
+      invalid_address_error: |-
+        invalid_address_error
+
+    command:
+      host:
+        edit_error: |-
+          Unable to edit /etc/hosts. Consult documentation or submit a pull request.
+        create_exists_match: |-
+          /etc/hosts record exists for %{ip} %{hostname}
+        create_exists_conflict: |-
+          this should be a friendly message telling them they have other conflicting entries to remove
+
+      route53:
+        fog_error: |-
+          AWS error: %{message}
+        create_success: |-
+          Route53 record created for %{ip} %{hostname}.
+        create_exists_match: |-
+          Route53 record exists for %{ip} %{hostname}.
+        create_exists_conflict: |-
+          Route53 record exists for %{ip} %{hostname}. Please update manually.
+        destroy_success: |-
+          Route53 record destroyed for %{hostname}
+        destroy_conflict: |-
+          Route53 record for %{hostname} does not match. Expected %{expected} got %{got}. Please update manually...
+        destroy_not_found: |-
+          Route53 record for %{hostname} not found. Skipping...
