@@ -1,6 +1,12 @@
 VagrantPlugins::CommandDns
 ==========================
 
+[![Gem Version](https://badge.fury.io/rb/vagrant-command-dns.svg)](https://badge.fury.io/rb/vagrant-command-dns)
+
+Todo:
+- add confirm to destroy subcommands
+- add windows support
+
 
 # Installation
 ```

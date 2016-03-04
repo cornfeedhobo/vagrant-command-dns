@@ -19,25 +19,29 @@ module VagrantPlugins
             ip = nil
 
             case env[:machine].provider_name
-            when :virtualbox
-              # We only operate on the first network defined in the Vagrantfile
-              unless env[:machine].config.vm.networks[1].nil?
-                network = env[:machine].config.vm.networks[1]
-                if network[1][:dns] == 'skip'
-                  @logger.info('')
-                  env[:ui].info('')
-                else
-                  cmd = "vagrant ssh -c \"ip -4 addr show \\$(ip -4 route | head -n2 | tail -n1 | awk '{print \\$5}') | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\" 2>/dev/null"
-                  begin
-                    ip = IPAddr.new(`#{cmd}`.chomp)
-                  rescue IPAddr::InvalidAddressError
-                    raise Errors::InvalidAddressError
+              when :virtualbox
+                env[:machine].config.vm.networks.each do |network|
+                  key, options = network[0], network[1]
+                  if key == :private_network or key == :public_network
+                    if options[:dns] != 'skip'
+                      case key
+                        when :private_network
+                          cmd = "vagrant ssh -c \"ip -4 addr show \\$(ip -4 route | tail -n1 | awk '{print \\$3}') | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\" 2>/dev/null"
+                        when :public_network
+                          cmd = "vagrant ssh -c \"ip -4 addr show \\$(ip -4 route | head -n2 | tail -n1 | awk '{print \\$5}') | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\" 2>/dev/null"
+                      end
+                      begin
+                        ip = IPAddr.new(`#{cmd}`.chomp)
+                      rescue IPAddr::InvalidAddressError
+                        raise Errors::InvalidAddressError
+                      end
+                    else
+                      env[:ui].info(I18n.t('vagrant_command_dns.config.network_skip'))
+                    end
                   end
                 end
-              end
-
-            else
-              raise Errors::UnsupportedProviderError
+              else
+                raise Errors::UnsupportedProviderError
             end
 
             unless ip.nil?
@@ -48,7 +52,6 @@ module VagrantPlugins
 
               record_map = {}
               host_names.each do |h|
-                env[:ui].info "#{h} #{ip.to_string}"
                 record_map[h] = ip.to_string
               end
 

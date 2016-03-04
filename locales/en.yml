@@ -2,6 +2,8 @@ en:
   vagrant_command_dns:
 
     config:
+      network_skip: |-
+        Skip requested for network in Vagrantfile
       route53_zone_id_required: |-
         A zone ID must be specified via "route53_zone_id"
       route53_access_key_id_required: |-
@@ -21,10 +23,14 @@ en:
       host:
         edit_error: |-
           Unable to edit /etc/hosts. Consult documentation or submit a pull request.
+        create_success: |-
+          /etc/hosts record created for %{ip} %{hostname}
         create_exists_match: |-
           /etc/hosts record exists for %{ip} %{hostname}
         create_exists_conflict: |-
-          this should be a friendly message telling them they have other conflicting entries to remove
+          Potentially conflicting entries found in /etc/hosts. Please update manually...
+        destroy_success: |-
+          /etc/hosts record destroyed for %{hostname}
 
       route53:
         fog_error: |-

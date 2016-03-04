@@ -10,8 +10,9 @@ module VagrantPlugins
 
         def call(env)
           if env[:record_map]
-            ip = env[:record_map].values[0]
-            env[:ui].info("#{ip}")
+            env[:record_map].each do |h, ip|
+              env[:ui].info "#{h} #{ip}"
+            end
           end
 
           @app.call(env)

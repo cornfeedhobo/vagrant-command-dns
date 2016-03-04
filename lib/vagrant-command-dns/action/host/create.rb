@@ -16,27 +16,37 @@ module VagrantPlugins
               raise Errors::MachineStateError, state: 'running'
             end
 
-            lines = []
-            env[:record_map].each do |hostname, ip|
-              loose_pattern = Regexp.new('^\s*[0-9]{1,3}[0-9]{1,3}[0-9]{1,3}[0-9]{1,3}\s+' + hostname)
-              precise_pattern = Regexp.new('^\s*' + ip + '\s+' + hostname)
-              File.open('/etc/hosts', 'r') do |f|
-                f.each_line do |line|
+            record_map = env[:record_map]
+
+            File.open('/etc/hosts', 'r') do |file|
+              file.each_line do |line|
+                env[:record_map].each do |hostname, ip|
+                  precise_pattern = Regexp.new('^\s*' + ip + '\s+' + hostname)
+                  loose_pattern = Regexp.new('^\s*[0-9]{1,3}[0-9]{1,3}[0-9]{1,3}[0-9]{1,3}\s+' + hostname)
                   if line.match(/#{precise_pattern}/)
-                    env[:ui].info(I18n.t('vagrant_command_dns.command.host.create_exists_match',
-                                         ip: ip, hostname: hostname))
-                    return
+                    record_map.delete(hostname)
+                    env[:ui].info(I18n.t('vagrant_command_dns.command.host.create_exists_match', ip: ip, hostname: hostname))
                   elsif line.match(/#{loose_pattern}/)
                     env[:ui].info(I18n.t('vagrant_command_dns.command.host.create_exists_conflict'))
                   end
                 end
               end
+            end
+
+            lines = []
+            record_map.each do |hostname, ip|
               lines.push("#{ip}    #{hostname}")
             end
 
-            content = lines.join("\n").strip
-            unless system("sudo sh -c 'echo \"#{content}\" >> /etc/hosts'")
-              env[:ui].error(I18n.t('vagrant_command_dns.command.host.edit_error'))
+            if lines.length > 0
+              content = lines.join("\n").strip
+              if system("sudo sh -c 'echo \"#{content}\" >> /etc/hosts'")
+                record_map.each do |hostname, ip|
+                  env[:ui].info(I18n.t('vagrant_command_dns.command.host.create_success', ip: ip, hostname: hostname))
+                end
+              else
+                env[:ui].error(I18n.t('vagrant_command_dns.command.host.edit_error'))
+              end
             end
 
             @app.call(env)
