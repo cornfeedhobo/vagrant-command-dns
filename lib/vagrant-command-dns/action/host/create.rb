@@ -13,7 +13,7 @@ module VagrantPlugins
 
           def call(env)
             if env[:machine].state.id != :running
-              raise Errors::MachineStateError, state: 'running'
+              raise Errors::MachineState, state: 'running'
             end
 
             record_map = env[:record_map]
@@ -21,6 +21,10 @@ module VagrantPlugins
             File.open('/etc/hosts', 'r') do |file|
               file.each_line do |line|
                 env[:record_map].each do |hostname, ip|
+                  if env[:machine].config.dns.skip_aliases.include? hostname
+                    env[:ui].info(I18n.t('vagrant_command_dns.command.common.skip_alias', hostname: hostname))
+                    next
+                  end
                   precise_pattern = Regexp.new('^\s*' + ip + '\s+' + hostname)
                   loose_pattern = Regexp.new('^\s*[0-9]{1,3}[0-9]{1,3}[0-9]{1,3}[0-9]{1,3}\s+' + hostname)
                   if line.match(/#{precise_pattern}/)

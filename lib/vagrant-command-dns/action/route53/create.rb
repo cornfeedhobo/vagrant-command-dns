@@ -14,10 +14,14 @@ module VagrantPlugins
 
           def call(env)
             if env[:machine].state.id != :running
-              raise Errors::MachineStateError, state: 'running'
+              raise Errors::MachineState, state: 'running'
             end
 
             env[:record_map].each do |hostname, ip|
+              if env[:machine].config.dns.skip_aliases.include? hostname
+                env[:ui].info(I18n.t('vagrant_command_dns.command.common.skip_alias', hostname: hostname))
+                next
+              end
               @logger.info("Checking for existing '#{hostname}' Route53 record...")
 
               record_name = hostname + '.' unless hostname.end_with?('.')

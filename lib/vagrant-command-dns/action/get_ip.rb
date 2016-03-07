@@ -13,35 +13,44 @@ module VagrantPlugins
         def call(env)
           if !env[:machine].config.dns.__skip
             if env[:machine].state.id != :running
-              raise Errors::MachineStateError
+              raise Errors::MachineState, state: 'running'
             end
 
             ip = nil
+            unable = true
 
             case env[:machine].provider_name
               when :virtualbox
                 env[:machine].config.vm.networks.each do |network|
                   key, options = network[0], network[1]
                   if key == :private_network or key == :public_network
+                    unable = false
                     if options[:dns] != 'skip'
-                      case key
-                        when :private_network
-                          cmd = "vagrant ssh -c \"ip -4 addr show \\$(ip -4 route | tail -n1 | awk '{print \\$3}') | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\" 2>/dev/null"
-                        when :public_network
-                          cmd = "vagrant ssh -c \"ip -4 addr show \\$(ip -4 route | head -n2 | tail -n1 | awk '{print \\$5}') | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\" 2>/dev/null"
-                      end
-                      begin
-                        ip = IPAddr.new(`#{cmd}`.chomp)
-                      rescue IPAddr::InvalidAddressError
-                        raise Errors::InvalidAddressError
+                      if options[:ip] # static ip specified
+                        ip = IPAddr.new(options[:ip])
+                      else
+                        case key
+                          when :private_network
+                            cmd = "vagrant ssh -c \"ip -4 addr show \\$(ip -4 route | tail -n1 | awk '{print \\$3}') | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\" 2>/dev/null"
+                          when :public_network
+                            cmd = "vagrant ssh -c \"ip -4 addr show \\$(ip -4 route | head -n2 | tail -n1 | awk '{print \\$5}') | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\" 2>/dev/null"
+                        end
+                        begin
+                          ip = IPAddr.new(`#{cmd}`.chomp)
+                        rescue IPAddr::InvalidAddressError
+                          raise Errors::InvalidAddress
+                        end
                       end
                     else
                       env[:ui].info(I18n.t('vagrant_command_dns.config.network_skip'))
                     end
                   end
                 end
+                if unable
+                  raise Errors::NoNetwork
+                end
               else
-                raise Errors::UnsupportedProviderError
+                raise Errors::UnsupportedProvider
             end
 
             unless ip.nil?

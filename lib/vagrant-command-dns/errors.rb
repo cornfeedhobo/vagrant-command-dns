@@ -6,24 +6,24 @@ module VagrantPlugins
         error_namespace('vagrant_command_dns.errors')
       end
 
-      class MachineStateError < VagrantCommandDnsError
-        error_key(:machine_state_error)
+      class ConfigInvalid < VagrantCommandDnsError
+        error_key(:config_invalid)
       end
 
-      class UnsupportedProviderError < VagrantCommandDnsError
-        error_key(:unsupported_provider_error)
+      class MachineState < VagrantCommandDnsError
+        error_key(:machine_state)
       end
 
-      class InvalidAddressError < VagrantCommandDnsError
-        error_key(:invalid_address_error)
+      class UnsupportedProvider < VagrantCommandDnsError
+        error_key(:unsupported_provider)
       end
 
-      class FogError < VagrantCommandDnsError
-        error_key(:fog_error)
+      class InvalidAddress < VagrantCommandDnsError
+        error_key(:invalid_address)
       end
 
-      class EditLocalHostsError < VagrantCommandDnsError
-        error_key(:edit_local_hosts_error)
+      class NoNetwork < VagrantCommandDnsError
+        error_key(:no_network)
       end
 
     end

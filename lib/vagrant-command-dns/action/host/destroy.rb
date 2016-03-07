@@ -14,7 +14,7 @@ module VagrantPlugins
           def call(env)
             unless env[:machine].config.dns.__skip
               if env[:machine].state.id != :running
-                raise Errors::MachineStateError, state: 'running'
+                raise Errors::MachineState, state: 'running'
               end
             end
 

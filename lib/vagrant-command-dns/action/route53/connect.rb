@@ -20,6 +20,13 @@ module VagrantPlugins
           end
 
           def call(env)
+            errors = []
+            errors << I18n.t('vagrant_command_dns.config.route53.access_key_id_required') if env[:machine].config.dns.route53_access_key_id.nil?
+            errors << I18n.t('vagrant_command_dns.config.route53.secret_access_key_required') if env[:machine].config.dns.route53_secret_access_key.nil?
+            if errors.length > 0
+              raise Errors::ConfigInvalid, errors: errors
+            end
+
             # Build the fog config
             fog_config = {
                 :provider              => :aws,
