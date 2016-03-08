@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 group :development do
-  gem 'vagrant', '~> 1.7.4'
+  gem 'vagrant', '~> 1.8.1'
 end
 
 group :plugins do

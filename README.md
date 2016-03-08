@@ -6,6 +6,25 @@ VagrantPlugins::CommandDns
 Todo:
 - add confirm to destroy subcommands
 - add windows support
+- add guest /etc/hosts editing
+- add dns server option
+
+
+## Motivation
+- Hostsupdater does not have an enable/disable option
+- Hostsupdater requires that a Vagrantfile specify a static address
+- External DNS support should not be tied to the vagrant provider
+- Action hooks are a poor way to manage DNS
+
+
+## Goals
+- Create a plugin that can incorporate all other existing DNS plugins
+- ?
+- Profit!
+
+
+## Is it any good?
+[Yes](http://news.ycombinator.com/item?id=3067434)
 
 
 # Installation

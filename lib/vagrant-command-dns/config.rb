@@ -7,12 +7,19 @@ module VagrantPlugins
       # @return [Array<String>]
       attr_accessor :aliases
 
+      ### Host Settings
+
       # List of disallowed aliases in FQDN format
       #
       # @return [Array<String>]
-      attr_accessor :skip_aliases
+      attr_accessor :host_skip_aliases
 
-      # AWS Route53 Settings
+      ### AWS Route53 Settings
+
+      # List of disallowed aliases in FQDN format
+      #
+      # @return [Array<String>]
+      attr_accessor :route53_skip_aliases
 
       # The version of the AWS api to use
       #
@@ -43,8 +50,10 @@ module VagrantPlugins
 
       def initialize
         @aliases                   = UNSET_VALUE
-        @skip_aliases              = UNSET_VALUE
 
+        @host_skip_aliases         = UNSET_VALUE
+
+        @route53_skip_aliases      = UNSET_VALUE
         @route53_version           = UNSET_VALUE
         @route53_access_key_id     = UNSET_VALUE
         @route53_secret_access_key = UNSET_VALUE
@@ -57,7 +66,10 @@ module VagrantPlugins
 
       def finalize!
         @aliases      = [] if @aliases      == UNSET_VALUE
-        @skip_aliases = [] if @skip_aliases == UNSET_VALUE
+
+        @host_skip_aliases = [] if @host_skip_aliases == UNSET_VALUE
+
+        @route53_skip_aliases = [] if @route53_skip_aliases == UNSET_VALUE
 
         @route53_version = nil if @route53_version == UNSET_VALUE
         @route53_zone_id = nil if @route53_zone_id == UNSET_VALUE
@@ -72,6 +84,10 @@ module VagrantPlugins
       def validate(machine)
         errors = _detected_errors
 
+        errors << I18n.t('vagrant_command_dns.config.common.aliases_list_required') unless @aliases.kind_of? Array
+
+        errors << I18n.t('vagrant_command_dns.config.host.skip_aliases_list_required') unless @host_skip_aliases.kind_of? Array
+
         if machine.provider_name == :aws
           aws_config = machine.provider_config
           # If these values are still not set and the AWS provider is being used, borrow it's config values
@@ -81,10 +97,9 @@ module VagrantPlugins
           @route53_session_token     = aws_config.session_token     if @route53_session_token     == nil
         end
 
-        errors << I18n.t('vagrant_command_dns.config.aliases_list_required') unless @aliases.kind_of? Array
-        errors << I18n.t('vagrant_command_dns.config.skip_aliases_list_required') unless @skip_aliases.kind_of? Array
+        errors << I18n.t('vagrant_command_dns.config.route53.skip_aliases_list_required') unless @route53_skip_aliases.kind_of? Array
 
-        { 'DNS' => errors }
+        { :DNS => errors }
       end
 
     end

@@ -21,10 +21,6 @@ module VagrantPlugins
             File.open('/etc/hosts', 'r') do |file|
               file.each_line do |line|
                 env[:record_map].each do |hostname, ip|
-                  if env[:machine].config.dns.skip_aliases.include? hostname
-                    env[:ui].info(I18n.t('vagrant_command_dns.command.common.skip_alias', hostname: hostname))
-                    next
-                  end
                   precise_pattern = Regexp.new('^\s*' + ip + '\s+' + hostname)
                   loose_pattern = Regexp.new('^\s*[0-9]{1,3}[0-9]{1,3}[0-9]{1,3}[0-9]{1,3}\s+' + hostname)
                   if line.match(/#{precise_pattern}/)
@@ -39,7 +35,11 @@ module VagrantPlugins
 
             lines = []
             record_map.each do |hostname, ip|
-              lines.push("#{ip}    #{hostname}")
+              if env[:machine].config.dns.host_skip_aliases.include?(hostname)
+                env[:ui].info(I18n.t('vagrant_command_dns.command.host.skip_alias', hostname: hostname))
+              else
+                lines.push("#{ip}    #{hostname}")
+              end
             end
 
             if lines.length > 0

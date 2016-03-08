@@ -10,10 +10,13 @@ en:
           %{errors}
         missing_field: "The following settings are missing: %{field}"
         aliases_list_required: "'aliases' must be a list of FQDNs."
-        skip_aliases_list_required: "'skip_aliases' must be a list of FQDNs."
         network_skip: "Skip requested for network in Vagrantfile."
 
+      host:
+        skip_aliases_list_required: "'host_skip_aliases' must be a list of FQDNs."
+
       route53:
+        skip_aliases_list_required: "'route53_skip_aliases' must be a list of FQDNs."
         access_key_id_required: "An access key ID must be specified via 'route53_access_key_id'"
         secret_access_key_required: "A secret access key is required via 'route53_secret_access_key'"
 
@@ -35,6 +38,7 @@ en:
         create_exists_match: "/etc/hosts record exists for %{ip} %{hostname}."
         create_exists_conflict: "Potentially conflicting entries found in /etc/hosts. Please update manually..."
         destroy_success: "/etc/hosts record destroyed for %{hostname}."
+        skip_alias: "%{hostname} specified via 'host_skip_aliases'. Skipping creation..."
 
       route53:
         fog_error: "AWS error: %{message}"
@@ -44,3 +48,4 @@ en:
         destroy_success: "Route53 record destroyed for %{hostname}."
         destroy_conflict: "Route53 record for %{hostname} does not match. Expected %{expected} got %{got}. Please update manually..."
         destroy_not_found: "Route53 record for %{hostname} not found. Skipping..."
+        skip_alias: "%{hostname} specified via 'route53_skip_aliases'. Skipping creation..."
