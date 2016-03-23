@@ -20,6 +20,7 @@ module VagrantPlugins
             unable = true
 
             case env[:machine].provider_name
+
               when :virtualbox
                 env[:machine].config.vm.networks.each do |network|
                   key, options = network[0], network[1]
@@ -36,7 +37,7 @@ module VagrantPlugins
                             cmd = "vagrant ssh -c \"ip -4 addr show \\$(ip -4 route | head -n2 | tail -n1 | awk '{print \\$5}') | grep -oP '(?<=inet\\s)\\d+(\\.\\d+){3}'\" 2>/dev/null"
                         end
                         begin
-                          ip = IPAddr.new(`#{cmd}`.chomp)
+                          ip = IPAddr.new(`#{cmd}`.chomp())
                         rescue IPAddr::InvalidAddressError
                           raise Errors::InvalidAddress
                         end
@@ -49,8 +50,18 @@ module VagrantPlugins
                 if unable
                   raise Errors::NoNetwork
                 end
+
+              when :aws
+                cmd = "vagrant ssh -c 'curl https://api.ipify.org'"
+                begin
+                  ip = IPAddr.new(`#{cmd}`.chomp())
+                rescue IPAddr::InvalidAddressError
+                  raise Errors::InvalidAddress
+                end
+
               else
                 raise Errors::UnsupportedProvider
+
             end
 
             unless ip.nil?
